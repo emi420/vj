@@ -81,6 +81,15 @@
             idata.data = data;
             // Draw the pixels onto the visible canvas
             c.putImageData(idata,0,0);
+        },
+        
+        circle: function(self) {
+            var className = self.canvas.className;
+            if (className.indexOf("circle") === -1) {
+                self.canvas.setAttribute("class", "circle");    
+            } else {
+                self.canvas.setAttribute("class", className.replace("circle", ""));    
+            }
         }
     }
     
@@ -138,6 +147,11 @@
                    player.setEffect("grayscale");
                    break;
 
+               // C: effect: circle
+               case 99:
+                   player.setEffect("circle");
+                   break;
+
                default:
                    alert(key)
            }
@@ -183,10 +197,14 @@
         },
         
         setEffect: function(effect) {
-            if (player.currentEffect !== effect) {
-                player.currentEffect = "grayscale";
+            if (effect !== "circle") {
+                if (player.currentEffect !== effect) {
+                    player.currentEffect = effect;
+                } else {
+                    player.currentEffect = undefined;
+                }
             } else {
-                player.currentEffect = undefined;
+                Player.effects.circle(this);
             }
         }
 
