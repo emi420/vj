@@ -19,3 +19,7 @@ Only tested on Mozilla Firefox
 * I: effect: invert
 * C: transform: circle
 * V: transform: flip vertical
+
+### Online demo
+
+http://emi420.github.io/vj/
