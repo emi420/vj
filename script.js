@@ -1,6 +1,4 @@
-(function() {
-    
-    //"use strict";
+(function(document) {
     
     var Player,
         player;
@@ -213,4 +211,4 @@
     
     Player.initEventListeners();
             
-}());
+}(window.document));
