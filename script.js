@@ -1,6 +1,6 @@
 (function() {
     
-    "use strict";
+    //"use strict";
     
     var Player,
         player;
@@ -13,6 +13,7 @@
         this.canvasContext = this.canvas.getContext('2d');
         this.frameRate = 20;
         this.pixelSize = 1;
+        this.currentEffect = undefined;
         Player.init(this);
     }
     
@@ -37,16 +38,56 @@
             context = self.canvasContext,
             canvas = self.canvas;
 
-    	if(video.paused || video.ended)	{
+    	if (video.paused || video.ended) {
             return false;
         }
         
-        canvas.width = self.canvasWidth = Math.floor(canvas.clientWidth / self.pixelSize);
-        canvas.height = self.canvasHeight = Math.floor(canvas.clientHeight / self.pixelSize);
-        
-    	context.drawImage(video,0,0,w,h);
+        if (self.currentEffect !== undefined) {
+            Player.effects[self.currentEffect](self);
+        } else {
+        	context.drawImage(video,0,0,w,h);
+        }
+
     	setTimeout(Player.draw,self.frameRate,self, video);
 
+    }
+    
+    Player.effects = {
+        grayscale: function(self) {
+            var c = document.createElement('canvas'),
+                bc = c.getContext("2d"),
+                v = self.video,
+                w = c.width = self.canvasWidth,
+                h = c.height = self.canvasHeight,
+                c = self.canvasContext;
+            
+            // First, draw it into the backing canvas
+            bc.drawImage(v,0,0,w,h);
+
+            // Grab the pixel data from the backing canvas
+            var idata = bc.getImageData(0,0,w,h);
+            var data = idata.data;
+
+            // Loop through the pixels, turning them grayscale
+            for(var i = 0; i < data.length; i+=4) {
+                var r = data[i];
+                var g = data[i+1];
+                var b = data[i+2];
+                var brightness = (3*r+4*g+b)>>>3;
+                data[i] = brightness;
+                data[i+1] = brightness;
+                data[i+2] = brightness;
+            }
+            idata.data = data;
+            // Draw the pixels onto the visible canvas
+            c.putImageData(idata,0,0);
+        }
+    }
+    
+    Player.updateCanvasSize = function(self) {
+        var canvas = self.canvas;
+        canvas.width = self.canvasWidth = Math.floor(canvas.clientWidth / self.pixelSize);
+        canvas.height = self.canvasHeight = Math.floor(canvas.clientHeight / self.pixelSize);
     }
     
     Player.initEventListeners = function() {
@@ -92,6 +133,10 @@
                    player.decreasePixelSize();
                    break;
 
+               // G: effect: gray scale
+               case 103:
+                   player.setEffect("grayscale");
+                   break;
 
                default:
                    alert(key)
@@ -118,6 +163,7 @@
         increaseFrameRate: function() {
             this.frameRate += 100;
         },
+        
         decreaseFrameRate: function() {
             this.frameRate -= 100;
         },
@@ -125,13 +171,24 @@
         increasePixelSize: function() {
             if (this.pixelSize < 1000) {
                 this.pixelSize += 10;
-            }            
+            }        
+            Player.updateCanvasSize(this);    
         },
+        
         decreasePixelSize: function() {
             if (this.pixelSize > 1) {
                 this.pixelSize -= 10;
             }
+            Player.updateCanvasSize(this);    
         },
+        
+        setEffect: function(effect) {
+            if (player.currentEffect !== effect) {
+                player.currentEffect = "grayscale";
+            } else {
+                player.currentEffect = undefined;
+            }
+        }
 
 
     }
