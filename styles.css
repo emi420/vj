@@ -22,6 +22,11 @@ body {
 #canvas.circle {
     border-radius: 100%;
 }
+
+#canvas.flipv {
+    transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+}
  
 #video {
     display: none;
